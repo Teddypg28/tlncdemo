@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react';
+
+import Welcome from './components/Welcome';
+import Casino from './components/Casino';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+  const [numOfPlayers, setNumOfPlayers] = useState()
+  const [names, setNames] = useState({})
+  const [readyToStart, setReadyToStart] = useState(false)
+
+  return ( 
+    <>
+      { !readyToStart && 
+      <Welcome 
+      numOfPlayers={numOfPlayers} 
+      setNumOfPlayers={setNumOfPlayers} 
+      names={names} 
+      setNames={setNames} 
+      readyToStart={readyToStart} 
+      setReadyToStart={setReadyToStart} /> } 
+      {
+        readyToStart &&
+      <Casino names={names} />    
+      }
+    </>
+    )
 }
 
 export default App;
