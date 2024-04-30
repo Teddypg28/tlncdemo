@@ -1,0 +1,99 @@
+.welcomeAddRemoveContainer {
+    display: flex;
+    align-items: center;
+    gap: 20px
+}
+
+.welcomeContainer {
+    background-image: url('https://static.vecteezy.com/system/resources/previews/005/525/213/original/neon-casino-playing-cards-with-poker-chips-and-hologram-of-digital-rings-in-dark-empty-scene-vector.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    font-family: 'Bubblegum Sans'
+}
+
+.welcomeHeading {
+    margin: 0px;
+    margin-top: 60px;
+    font-size: 70px;
+    color: #00A2FF
+}
+
+.welcomeInput {
+    width: 50px;
+    height: 50px;
+    padding: 10px;
+    border-radius: 20px;
+    background-color: white;
+    border: 2px solid #00A2FF;
+    text-align: center;
+    font-size: 25px;
+    margin-bottom: 10px;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.welcomeInputContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center
+}
+
+.welcomeNameInput {
+    width: 100%;
+    height: 70px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 4px solid #00A2FF;
+    box-sizing: border-box;
+    margin: 5px 0px
+}
+
+.welcomeStartGameBtn {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    background-color: #00A2FF;
+    margin-top: 5px;
+    font-size: 25px;
+    border: none;
+    font-family: 'Bubblegum Sans';
+    cursor: pointer
+}
+
+.welcomeNumOfPlayersDecreaseBtn {
+    background-color: white;
+    border: 2px solid #00A2FF;
+    border-radius: 20px;
+    height: 50px;
+    width: 50px;
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    cursor: pointer
+}
+
+.welcomeNumOfPlayersIncreaseBtn {
+    background-color: white;
+    border: 2px solid #00A2FF;
+    border-radius: 20px;
+    height: 50px;
+    width: 50px;
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    cursor: pointer
+}

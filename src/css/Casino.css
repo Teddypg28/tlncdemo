@@ -1,0 +1,31 @@
+.casinoContainer {
+    overflow: hidden;
+    overflow-y: scroll;
+    height: 100vh;
+    background-size: cover;
+    background-image: url('https://img.freepik.com/premium-vector/poker-table-background-green-color_47243-1068.jpg');
+    text-align: center;
+    color: white;
+    font-family: 'Bubblegum Sans';
+    font-size: 28px
+}
+
+.casinoButton {
+    width: 350px;
+    height: 70px;
+    background-color: yellow;
+    color: black;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer
+}
+
+.casinoInput {
+    display: block;
+    margin: auto;
+    height: 30px;
+    width: 400px;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 40px
+}

@@ -5,7 +5,6 @@ async function generateDeckId() {
     return deck.deck_id
 }
 
-
 async function getCard(deckId) {
     const result = await fetch(`https://www.deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`)
     const card = await result.json()

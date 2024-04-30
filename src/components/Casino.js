@@ -2,12 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import SelectedCards from './SelectedCards';
 
-// NOTES FOR TOMORROW
-// 1) add pictures of cards for styling to casino
+import '../css/Casino.css'
 
 // Deck of Cards API Functions
 
-import { generateDeckId, getCard } from '../deckOfCardsApi'
+import { generateDeckId, getCard } from '../api/deckOfCardsApi'
 
 function Casino({names}) {
     
@@ -15,7 +14,7 @@ function Casino({names}) {
     
     const playerKeys = Object.keys(names)
     
-    // State Value storage that will be reset / updated each round
+    // Player guess state - will be reset / updated each round
     
     const [currentGuesserSpot, setCurrentGuesserSpot] = useState(0)
     const [currentGuesserName, setCurrentGuesserName] = useState(names[playerKeys[currentGuesserSpot]])
@@ -24,7 +23,7 @@ function Casino({names}) {
     const [allGuessesMade, setAllGuessesMade] = useState(false)
     const [selectedCard, setSelectedCard] = useState('')
 
-    // Except for these two (below)
+    // Except for these two
 
     const [selectedCardImages, setSelectedCardImages] = useState([])
     const [displayWelcomeHeading, setDisplayWelcomeHeading] = useState(true)
@@ -157,17 +156,17 @@ function Casino({names}) {
     // Custom thank you message at the end of each game
 
     let thankYouMessage = 'Thanks for coming out to TLNC'
-    const generateCustomThankYouMessage = (n) => {
+    const generateCustomThankYouMessage = (name) => {
         if (playerNames.length === 1) {
-            thankYouMessage += `, ${n}!`
+            thankYouMessage += `, ${name}!`
         } 
-        else if (n === playerNames[playerNames.length - 1]) {
-            thankYouMessage += ` and ${n}!`
+        else if (name === playerNames[playerNames.length - 1]) {
+            thankYouMessage += ` and ${name}!`
         }
         else if (playerNames.length === 2) {
-            thankYouMessage += `, ${n}`
+            thankYouMessage += `, ${name}`
         } else if (playerNames.length > 2) {
-            thankYouMessage += ` ${n},`
+            thankYouMessage += ` ${name},`
         }
     }
 
@@ -178,13 +177,13 @@ function Casino({names}) {
 
     return (
         <>
-            <div style={styles.container}>
+            <div className='casinoContainer'>
                {displayWelcomeHeading && <h1 style={{color: 'yellow'}}>{welcomeHeading.current}</h1> }
                 {!allGuessesMade && 
                 <>
                     <p>{playerNames.length === 1 ? `${message}` : `${currentGuesserName}${message}`}</p>
-                    <input autoComplete='off' onChange={handleGuess} value={guess} name={currentGuesserName} style={styles.input} placeholder='Enter your card guess here' />
-                    {guess.trim() !== '' && <button onClick={updateOrder} style={styles.button}>Make Pick</button> }
+                    <input autoComplete='off' onChange={handleGuess} value={guess} name={currentGuesserName} className='casinoInput' placeholder='Enter your card guess here' />
+                    {guess.trim() !== '' && <button onClick={updateOrder} className='casinoButton'>Make Pick</button> }
                 </>
                 }
                 {allGuessesMade && 
@@ -198,51 +197,19 @@ function Casino({names}) {
                     currentRound={currentRound.current} 
                     playerScores={playerScores}
                     /> 
-                    { currentRound.current !== 5 && isImageRetrieved.current && <button onClick={nextRound} style={styles.button}>Next Round</button> }
+                    { currentRound.current !== 5 && isImageRetrieved.current && <button onClick={nextRound} className='casinoButton'>Next Round</button> }
                     { currentRound.current === 5 && selectedCardImages.length === 5 && 
                     <div>
                        <p>{thankYouMessage}</p>
                        <p>Come again soon! And as always, MIFUUUUUU</p>
-                       <button onClick={() => window.location.reload()} style={styles.button}>Exit Casino</button>
+                       <button onClick={() => window.location.reload()} className='casinoButton'>Exit Casino</button>
                     </div>
-                        
                     }
                 </>
                 }       
             </div>
         </>
     );
-}
-
-const styles = {
-    container: {
-        overflow: 'hidden',
-        height: '100vh',
-        backgroundSize: 'cover',
-        backgroundImage: "url('https://img.freepik.com/premium-vector/poker-table-background-green-color_47243-1068.jpg')",
-        textAlign: 'center',
-        color: 'white',
-        fontFamily: 'Bubblegum Sans',
-        fontSize: 28
-    },
-    button: {
-        width: 350,
-        height: 70,
-        backgroundColor: 'yellow',
-        color: 'black',
-        border: 'none',
-        borderRadius: 10,
-        cursor: 'pointer'
-    },
-    input: {
-        display: 'block',
-        margin: 'auto',
-        height: 30,
-        width: 400,
-        padding: 20,
-        borderRadius: 10,
-        marginBottom: 40
-    }
 }
 
 export default Casino;

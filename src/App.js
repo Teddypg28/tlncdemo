@@ -5,7 +5,7 @@ import Casino from './components/Casino';
 
 function App() {
 
-  const [numOfPlayers, setNumOfPlayers] = useState()
+  const [numOfPlayers, setNumOfPlayers] = useState(1)
   const [names, setNames] = useState({})
   const [readyToStart, setReadyToStart] = useState(false)
 
