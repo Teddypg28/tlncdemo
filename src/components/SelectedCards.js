@@ -1,5 +1,7 @@
 import React from 'react';
 
+import '../css/SelectedCards.css'
+
 function SelectedCards({currentRound, selectedCardImages, selectedCard, isImageRetrieved, playerGuesses, playerNames, playerScores}) { 
     
     const guessKeys = Object.keys(playerGuesses)
@@ -108,7 +110,7 @@ function SelectedCards({currentRound, selectedCardImages, selectedCard, isImageR
             {isImageRetrieved.current && currentRound !== 5 && winningPlayers.length === 0 && <p> {playerNames.length === 1 ? `You didn't win this round, ${playerNames[0]}` : 'Nobody won this round'}</p> } 
             {isImageRetrieved.current && winners.length === 0 && currentRound === 5 && <p style={{fontWeight: 'bold'}}> {playerNames.length === 1 ? `Sorry, ${playerNames[0]}! You walk away empty handed today!` : 'Nobody walks away with the TLNC grand prize...'} </p>}
             <div className='cardLayoutContainer'>
-                <div className='cardsContainer'>
+                <div className='selectedCardsContainer'>
                     {renderCards()}
                 </div>
             </div>

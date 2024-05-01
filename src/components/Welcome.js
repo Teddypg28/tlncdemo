@@ -4,11 +4,13 @@ import '../css/Welcome.css'
 
 function Welcome({numOfPlayers, setNumOfPlayers, names, setNames, setReadyToStart}) {
 
-    console.log(names)
+    // Updates input fields of the player names
 
     const handleInputChange = (e) => {
         setNames({...names, [e.target.name]: e.target.value})
     }
+
+    // generates inputs based on the number of players selected
 
     let inputs = []
     const generateInputs = () => {
@@ -17,6 +19,8 @@ function Welcome({numOfPlayers, setNumOfPlayers, names, setNames, setReadyToStar
         }
         return inputs
     }
+
+    // Validates that all names are entered before starting the game
 
     const handleFormSubmit = (e) => {
         const keys = Object.keys(names)
@@ -28,6 +32,8 @@ function Welcome({numOfPlayers, setNumOfPlayers, names, setNames, setReadyToStar
             e.preventDefault()
         }
     }
+
+    // Increase or decrease amount of players event listeners
 
     const handleIncrease = () => {
         setNumOfPlayers(numOfPlayers + 1)

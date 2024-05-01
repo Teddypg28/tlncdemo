@@ -38,11 +38,24 @@ function Casino({names}) {
     const currentRound = useRef(1)
     const welcomeHeading = useRef('Welcome, ')
 
+    /*
+
+    After component mounts:
+
+    If no deck ID, call API to generate a new deck and select card from that deck.
+
+    Only fetch when isImageRetrieved === false so that user can't fetch another card while still
+    waiting for the first one to show.
+
+    Otherwise, using the deck that's already generated, select another card.
+
+    */
+
     useEffect(() => {
         
     if (isFirstRender.current) {
         isFirstRender.current = false
-        return () => console.log('Cleaning up...')
+
     }
     else if (!isDeckId.current && !isImageRetrieved.current) {
            const fetchUsers = async () => {
@@ -52,9 +65,13 @@ function Casino({names}) {
                 const card = await getCard(deckId.current)
                 const cardName = `${card.cards[0].value} of ${card.cards[0].suit}`
                 setTimeout(() => { setSelectedCardImages([...selectedCardImages, card.cards[0].image]); setSelectedCard(cardName); isImageRetrieved.current = true} , 3000)
-        }; fetchUsers()
-        
-            return () => console.log('Unmounted 2')
+        }; 
+
+            fetchUsers()
+
+            // Cleanup function
+
+            return () => console.log('Unmounted')
 
         } else if (isDeckId.current && !isImageRetrieved.current && allGuessesMade) {
             const fetchUsers = async () => {
@@ -62,11 +79,15 @@ function Casino({names}) {
                 const cardName = `${card.cards[0].value} of ${card.cards[0].suit}`
                 setTimeout(() => { setSelectedCardImages([...selectedCardImages, card.cards[0].image]); setSelectedCard(cardName); isImageRetrieved.current = true}, 3000)
             };
+
             fetchUsers()
-            return () => console.log('Unmounted 3')
-        } else {
-            return () => console.log('Unmounted 4')
-        }
+
+            // Cleanup function
+
+            return () => console.log('Unmounted')
+
+        } 
+
     }, [allGuessesMade, selectedCardImages]) 
 
     // Set Guess Order 
@@ -91,7 +112,7 @@ function Casino({names}) {
     const nextRound = () => {
         setCurrentGuesserSpot(0)
         setAllGuessesMade(false)
-        setPlayerGuesses()
+        setPlayerGuesses({})
         setCurrentGuesserName(names[playerKeys[0]])
         setGuess('')
         currentRound.current = currentRound.current + 1
