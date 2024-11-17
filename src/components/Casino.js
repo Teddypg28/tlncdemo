@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+import generateWelcomeHeading from '../helper/generateWelcomeHeading';
+import generateCustomMessage from '../helper/generateCustomMessage';
+import generateThankYouMessage from '../helper/generateThankYouMessage';
+
 import SelectedCards from './SelectedCards';
 
 import '../css/Casino.css'
@@ -8,35 +12,26 @@ import '../css/Casino.css'
 
 import { generateDeckId, getCard } from '../api/deckOfCardsApi'
 
+
 function Casino({names}) {
-    
-    // Player keys that hold player names from object passed from Welcome.js
-    
-    const playerKeys = Object.keys(names)
-    
-    // Player guess state - will be reset / updated each round
-    
-    const [currentGuesserSpot, setCurrentGuesserSpot] = useState(0)
-    const [currentGuesserName, setCurrentGuesserName] = useState(names[playerKeys[currentGuesserSpot]])
-    const [playerGuesses, setPlayerGuesses] = useState({})
-    const [guess, setGuess] = useState('')
-    const [allGuessesMade, setAllGuessesMade] = useState(false)
-    const [selectedCard, setSelectedCard] = useState('')
 
-    // Except for these two
+    const initialRoundData = {
+        round: 1,
+        currentGuesserSpot: 0,
+        playerGuesses: Object.fromEntries(names.map(name => [name, ''])),
+        allGuessesMade: false,
+        isCardSelected: false
+    }
 
-    const [selectedCardImages, setSelectedCardImages] = useState([])
-    const [displayWelcomeHeading, setDisplayWelcomeHeading] = useState(true)
+    const [playerScores, setPlayerScores] = useState(Object.fromEntries(names.map(name => [name, 0])))
+    const [roundData, setRoundData] = useState(initialRoundData)
+
+    const [selectedCardHistory, setSelectedCardHistory] = useState([])
 
     // useRef hooks
 
     const isFirstRender = useRef(true)
-    const isImageRetrieved = useRef(false)
-    const isDeckId = useRef(false)
-    const deckId = useRef('')
-    const playerScores = useRef({})
-    const currentRound = useRef(1)
-    const welcomeHeading = useRef('Welcome, ')
+    const deckId = useRef(null)
 
     /*
 
@@ -44,7 +39,7 @@ function Casino({names}) {
 
     If no deck ID, call API to generate a new deck and select card from that deck.
 
-    Only fetch when isImageRetrieved === false so that user can't fetch another card while still
+    Only fetch when isCardSelected === false so that user can't fetch another card while still
     waiting for the first one to show.
 
     Otherwise, using the deck that's already generated, select another card.
@@ -54,174 +49,90 @@ function Casino({names}) {
     useEffect(() => {
         
     if (isFirstRender.current) {
+
         isFirstRender.current = false
 
-    }
-    else if (!isDeckId.current && !isImageRetrieved.current) {
-           const fetchUsers = async () => {
-               const newDeckId = await generateDeckId()
-                isDeckId.current = true
-                deckId.current = newDeckId
+    } else {
+
+        if (roundData.allGuessesMade && !roundData.isCardSelected) {
+
+            const drawCard = async () => {
+
+                if (!deckId.current && !roundData.isCardSelected) deckId.current = await generateDeckId()                         
+    
                 const card = await getCard(deckId.current)
-                const cardName = `${card.cards[0].value} of ${card.cards[0].suit}`
-                setTimeout(() => { setSelectedCardImages([...selectedCardImages, card.cards[0].image]); setSelectedCard(cardName); isImageRetrieved.current = true} , 3000)
-        }; 
+                
+                setTimeout(() => { 
+                    setSelectedCardHistory([...selectedCardHistory, {name: `${card.cards[0].value} of ${card.cards[0].suit}`, image: card.cards[0].image}]); 
+                    setRoundData({...roundData, isCardSelected: true})
+                }, 3000)
+                                
+            }
 
-            fetchUsers()
+            drawCard()
 
-            // Cleanup function
+        }
+    } 
 
-            return () => console.log('Unmounted')
+    // Cleanup Function
 
-        } else if (isDeckId.current && !isImageRetrieved.current && allGuessesMade) {
-            const fetchUsers = async () => {
-                const card = await getCard(deckId.current)
-                const cardName = `${card.cards[0].value} of ${card.cards[0].suit}`
-                setTimeout(() => { setSelectedCardImages([...selectedCardImages, card.cards[0].image]); setSelectedCard(cardName); isImageRetrieved.current = true}, 3000)
-            };
+    return () => console.log('Unmounted')
 
-            fetchUsers()
-
-            // Cleanup function
-
-            return () => console.log('Unmounted')
-
-        } 
-
-    }, [allGuessesMade, selectedCardImages]) 
+    }, [roundData, selectedCardHistory]) 
 
     // Set Guess Order 
 
-    const updateOrder = (e) => {   
-
-        if (currentGuesserSpot + 1 > playerKeys.length - 1) {
-            setAllGuessesMade(val => !val)
-            if (displayWelcomeHeading) { 
-                setDisplayWelcomeHeading(val => !val) 
-            }
+    const updateOrder = () => {   
+        if (roundData.currentGuesserSpot === names.length - 1) {
+            setRoundData({...roundData, allGuessesMade: true})
         } else {
-            setCurrentGuesserSpot(currentGuesserSpot + 1)
-            setCurrentGuesserName(names[playerKeys[currentGuesserSpot + 1]])
-            setGuess('')
-            e.preventDefault()
+            setRoundData({...roundData, currentGuesserSpot: roundData.currentGuesserSpot + 1})
         }
     }
 
     // Set Next Round
 
-    const nextRound = () => {
-        setCurrentGuesserSpot(0)
-        setAllGuessesMade(false)
-        setPlayerGuesses({})
-        setCurrentGuesserName(names[playerKeys[0]])
-        setGuess('')
-        currentRound.current = currentRound.current + 1
-        isImageRetrieved.current = false
-    }
+    const nextRound = () => setRoundData({...initialRoundData, round: roundData.round + 1})
 
     // Handle guesses
 
     const handleGuess = (e) => {
-        setGuess(e.target.value)
-        setPlayerGuesses({...playerGuesses, [e.target.name]: e.target.value})
+        setRoundData({...roundData, playerGuesses: {...roundData.playerGuesses, [e.target.name]: e.target.value}})
     }
-
-    // Get player names from input
-
-    let playerNames = []
-    for (let i = 0; i<playerKeys.length; i++) {
-        playerNames.push(names[playerKeys[i]])
-    }
-
-    // Create welcome heading based on names
-
-    if (currentRound.current === 1 && isFirstRender.current) {
-
-    const handleNameLogic = (n) => {
-        if (playerNames.length === 1) {
-            welcomeHeading.current = `Welcome, ${n}!`
-        } else if (n === playerNames[playerNames.length - 1]) {
-            welcomeHeading.current += `and ${n}!`
-        } else if (playerNames.length === 2) {
-            welcomeHeading.current += `${n} `
-        } else if (playerNames.length > 2) {
-            welcomeHeading.current += `${n}, `
-    }}
-
-    playerNames.forEach(name => {
-        handleNameLogic(name)
-    })
-
-    }
-
-    // Custom message for each round of guessing
-
-    let message 
-    if (currentGuesserSpot === 0 && playerNames.length === 1 && currentRound.current === 5) {
-        message = `${currentGuesserName}, it's your final guess!`
-    } else if (currentRound.current === 5 && currentGuesserSpot === 0) {
-     message =  ` will start us off for round ${currentRound.current}, the final round! Make your final pick!`
-    }
-   else if(currentGuesserSpot === 0 && playerNames.length === 1) { 
-        message = 'You are up!'
-    }
-     else if (currentGuesserSpot === 0) {
-        message = ` will start us off for round ${currentRound.current}. Make your pick!`
-     } else if (currentRound.current === 5) {
-        message =  ` is next. Make your final pick!`
-     }
-    else {
-        message = ' is next. Make your pick!' 
-    }
-
-    // Custom thank you message at the end of each game
-
-    let thankYouMessage = 'Thanks for coming out to TLNC'
-    const generateCustomThankYouMessage = (name) => {
-        if (playerNames.length === 1) {
-            thankYouMessage += `, ${name}!`
-        } 
-        else if (name === playerNames[playerNames.length - 1]) {
-            thankYouMessage += ` and ${name}!`
-        }
-        else if (playerNames.length === 2) {
-            thankYouMessage += `, ${name}`
-        } else if (playerNames.length > 2) {
-            thankYouMessage += ` ${name},`
-        }
-    }
-
-   if (currentRound.current === 5 && selectedCardImages.length === 5) { playerNames.forEach(name => {
-        generateCustomThankYouMessage(name)
-    })
-    }
-
+    
     return (
         <>
             <div className='casinoContainer'>
-               {displayWelcomeHeading && <h1 style={{color: 'yellow'}}>{welcomeHeading.current}</h1> }
-                {!allGuessesMade && 
+               {roundData.round === 1 && !roundData.allGuessesMade && <h1 style={{color: 'yellow'}}>{generateWelcomeHeading(names)}</h1> }
+                {!roundData.allGuessesMade && 
                 <>
-                    <p>{playerNames.length === 1 ? `${message}` : `${currentGuesserName}${message}`}</p>
-                    <input autoComplete='off' onChange={handleGuess} value={guess} name={currentGuesserName} className='casinoInput' placeholder='Enter your card guess here' />
-                    {guess.trim() !== '' && <button onClick={updateOrder} className='casinoButton'>Make Pick</button> }
+                    <p>{generateCustomMessage(roundData.currentGuesserSpot, roundData.round, names)}</p>
+                    <input 
+                    autoComplete='off' 
+                    onChange={handleGuess} 
+                    value={roundData.playerGuesses[names[roundData.currentGuesserSpot]]} 
+                    name={names[roundData.currentGuesserSpot]} 
+                    className='casinoInput' 
+                    placeholder='Enter your card guess here' 
+                    />
+                    <button onClick={updateOrder} className='casinoButton'>Make Pick</button>
                 </>
                 }
-                {allGuessesMade && 
+                {roundData.allGuessesMade && 
                 <>
                     <SelectedCards 
-                    playerNames={playerNames} 
-                    playerGuesses={playerGuesses} 
-                    isImageRetrieved={isImageRetrieved} 
-                    selectedCard={selectedCard} 
-                    selectedCardImages={selectedCardImages} 
-                    currentRound={currentRound.current} 
+                    playerNames={names} 
                     playerScores={playerScores}
+                    setPlayerScores={setPlayerScores}
+                    playerGuesses={roundData.playerGuesses} 
+                    isCardSelected={roundData.isCardSelected} 
+                    selectedCardHistory={selectedCardHistory} 
+                    currentRound={roundData.round} 
                     /> 
-                    { currentRound.current !== 5 && isImageRetrieved.current && <button onClick={nextRound} className='casinoButton'>Next Round</button> }
-                    { currentRound.current === 5 && selectedCardImages.length === 5 && 
+                    { roundData.round !== 5 && roundData.isCardSelected && <button onClick={nextRound} className='casinoButton'>Next Round</button> }
+                    { roundData.round === 5 && selectedCardHistory.length === 5 && 
                     <div>
-                       <p>{thankYouMessage}</p>
+                       <p>{generateThankYouMessage(names)}</p>
                        <p>Come again soon! And as always, MIFUUUUUU</p>
                        <button onClick={() => window.location.reload()} className='casinoButton'>Exit Casino</button>
                     </div>
