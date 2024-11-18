@@ -36,12 +36,12 @@ function Casino({playerNames}) {
 
     After component mounts:
 
-    If no deck ID, call API to generate a new deck and select card from that deck.
+        If no deck ID, call API to generate a new deck and select card from that deck.
 
-    Only fetch when isCardSelected === false so that user can't fetch another card while still
-    waiting for the first one to show.
+        Only fetch when isCardSelected === false so that user can't fetch another card while still
+        waiting for the first one to show.
 
-    Otherwise, using the deck that's already generated, select another card.
+        Otherwise, using the deck that's already generated, select another card.
 
     */
 
@@ -69,13 +69,13 @@ function Casino({playerNames}) {
                 }
 
                 drawCard()
+                
+                // Cleanup Function
 
                 return () => console.log('Unmounted')
             }
 
         } 
-
-        // Cleanup Function
 
 
     }, [roundData, selectedCardHistory, allGuessesMade, isCardSelected]) 
@@ -86,8 +86,6 @@ function Casino({playerNames}) {
         setRoundData({...initialRoundData, round: round + 1, playerGuesses: Object.fromEntries(playerNames.map(name => [name, '']))})
     }
 
-    // end of game winner check function
-    
     return (
         <>
             <div className='casinoContainer'>

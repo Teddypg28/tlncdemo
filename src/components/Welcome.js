@@ -13,7 +13,7 @@ function Welcome({names, setNames, setReadyToStart}) {
         setNames(updatedNames)
     }
 
-    // generates inputs based on the number of players selected
+    // generates inputs based on the number of names (players)
 
     let inputs = []
     const generateInputs = () => {
@@ -33,7 +33,7 @@ function Welcome({names, setNames, setReadyToStart}) {
         return inputs
     }
 
-    // Validates that all names are entered before starting the game
+    // Ensures that no names are empty before starting the game
 
     const handleFormSubmit = (e) => {
         e.preventDefault()
@@ -44,7 +44,7 @@ function Welcome({names, setNames, setReadyToStart}) {
         }
     }
 
-    // Increase or decrease amount of players event listeners
+    // Increase or decrease amount of players
 
     const handleIncrease = () => {
         setNames([...names, ''])

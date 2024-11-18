@@ -4,8 +4,6 @@ export default function FinalResults({playerScores, playerNames}) {
 
     const { winnerMessage, winners } = getGameWinners(playerScores.current)
 
-    console.log(playerScores.current)
-
     return (
         <>
             {winners.length === 0 ?
