@@ -47,7 +47,7 @@ function Welcome({names, setNames, setReadyToStart}) {
     // Increase or decrease amount of players
 
     const handleIncrease = () => {
-        setNames([...names, ''])
+        setNames(prevNames => [...prevNames, ''])
     }
 
     const handleDecrease = () => {

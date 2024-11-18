@@ -5,16 +5,16 @@ export default function Guess({roundData, setRoundData, playerNames}) {
     const {playerGuesses, currentGuesserSpot, round} = roundData
 
     const handleGuess = (e) => {
-        setRoundData({...roundData, playerGuesses: {...playerGuesses, [e.target.name]: e.target.value}})
+        setRoundData(prevRoundData => {return {...prevRoundData, playerGuesses: {...playerGuesses, [e.target.name]: e.target.value}}})
     }
 
     // Change Guessers 
 
     const updateOrder = () => {   
         if (currentGuesserSpot === playerNames.length - 1) {
-            setRoundData({...roundData, allGuessesMade: true})
+            setRoundData(prevRoundData => {return {...prevRoundData, allGuessesMade: true}})
         } else {
-            setRoundData({...roundData, currentGuesserSpot: currentGuesserSpot + 1})
+            setRoundData(prevRoundData => {return {...prevRoundData, currentGuesserSpot: currentGuesserSpot + 1}})
         }
     }
 

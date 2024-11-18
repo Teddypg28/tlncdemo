@@ -62,8 +62,8 @@ function Casino({playerNames}) {
                     const card = await getCard(deckId.current)
                     
                     setTimeout(() => { 
-                        setSelectedCardHistory([...selectedCardHistory, {name: `${card.cards[0].value} of ${card.cards[0].suit}`, image: card.cards[0].image}]); 
-                        setRoundData({...roundData, isCardSelected: true})
+                        setSelectedCardHistory(prevSelectedCardHistory => [...prevSelectedCardHistory, {name: `${card.cards[0].value} of ${card.cards[0].suit}`, image: card.cards[0].image}]); 
+                        setRoundData(prevRoundData => { return {...prevRoundData, isCardSelected: true}})
                     }, 3000)
                                     
                 }
