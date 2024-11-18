@@ -17,7 +17,7 @@ function App() {
       readyToStart={readyToStart} 
       setReadyToStart={setReadyToStart} />  
       :
-      <Casino names={names} />    
+      <Casino playerNames={names} />    
       }
     </>
     )

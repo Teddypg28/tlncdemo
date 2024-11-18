@@ -1,35 +1,34 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import generateWelcomeHeading from '../helper/generateWelcomeHeading';
-import generateCustomMessage from '../helper/generateCustomMessage';
-import generateThankYouMessage from '../helper/generateThankYouMessage';
-
-import SelectedCards from './SelectedCards';
-
-import '../css/Casino.css'
-
-// Deck of Cards API Functions
 
 import { generateDeckId, getCard } from '../api/deckOfCardsApi'
 
+import '../css/Casino.css'
 
-function Casino({names}) {
+import ThankYou from './ThankYou';
+import Guess from './Guess';
+import SelectedCards from './SelectedCards';
+import FinalResults from './FinalResults';
+import RoundResults from './RoundResults';
 
-    const initialRoundData = {
-        round: 1,
-        currentGuesserSpot: 0,
-        playerGuesses: Object.fromEntries(names.map(name => [name, ''])),
-        allGuessesMade: false,
-        isCardSelected: false
-    }
+const initialRoundData = {
+    round: 1,
+    currentGuesserSpot: 0,
+    playerGuesses: {},
+    allGuessesMade: false,
+    isCardSelected: false
+}
 
-    const [playerScores, setPlayerScores] = useState(Object.fromEntries(names.map(name => [name, 0])))
-    const [roundData, setRoundData] = useState(initialRoundData)
+function Casino({playerNames}) {
 
+    const [roundData, setRoundData] = useState({...initialRoundData, playerGuesses: Object.fromEntries(playerNames.map(name => [name, '']))})
+    const { allGuessesMade, isCardSelected, round } = roundData
     const [selectedCardHistory, setSelectedCardHistory] = useState([])
 
     // useRef hooks
 
+    const playerScores = useRef(Object.fromEntries(playerNames.map(name => [name, 0])))
     const isFirstRender = useRef(true)
     const deckId = useRef(null)
 
@@ -48,97 +47,101 @@ function Casino({names}) {
 
     useEffect(() => {
         
-    if (isFirstRender.current) {
+        if (isFirstRender.current) {
 
-        isFirstRender.current = false
+            isFirstRender.current = false
 
-    } else {
+        } else {
 
-        if (roundData.allGuessesMade && !roundData.isCardSelected) {
+            if (allGuessesMade && !isCardSelected) {
 
-            const drawCard = async () => {
+                const drawCard = async () => {
 
-                if (!deckId.current && !roundData.isCardSelected) deckId.current = await generateDeckId()                         
-    
-                const card = await getCard(deckId.current)
-                
-                setTimeout(() => { 
-                    setSelectedCardHistory([...selectedCardHistory, {name: `${card.cards[0].value} of ${card.cards[0].suit}`, image: card.cards[0].image}]); 
-                    setRoundData({...roundData, isCardSelected: true})
-                }, 3000)
-                                
+                    if (!deckId.current && !isCardSelected) deckId.current = await generateDeckId()                         
+        
+                    const card = await getCard(deckId.current)
+                    
+                    setTimeout(() => { 
+                        setSelectedCardHistory([...selectedCardHistory, {name: `${card.cards[0].value} of ${card.cards[0].suit}`, image: card.cards[0].image}]); 
+                        setRoundData({...roundData, isCardSelected: true})
+                    }, 3000)
+                                    
+                }
+
+                drawCard()
+
+                return () => console.log('Unmounted')
             }
 
-            drawCard()
+        } 
 
-        }
-    } 
+        // Cleanup Function
 
-    // Cleanup Function
 
-    return () => console.log('Unmounted')
-
-    }, [roundData, selectedCardHistory]) 
-
-    // Set Guess Order 
-
-    const updateOrder = () => {   
-        if (roundData.currentGuesserSpot === names.length - 1) {
-            setRoundData({...roundData, allGuessesMade: true})
-        } else {
-            setRoundData({...roundData, currentGuesserSpot: roundData.currentGuesserSpot + 1})
-        }
-    }
+    }, [roundData, selectedCardHistory, allGuessesMade, isCardSelected]) 
 
     // Set Next Round
 
-    const nextRound = () => setRoundData({...initialRoundData, round: roundData.round + 1})
-
-    // Handle guesses
-
-    const handleGuess = (e) => {
-        setRoundData({...roundData, playerGuesses: {...roundData.playerGuesses, [e.target.name]: e.target.value}})
+    const nextRound = () => {
+        setRoundData({...initialRoundData, round: round + 1, playerGuesses: Object.fromEntries(playerNames.map(name => [name, '']))})
     }
+
+    // end of game winner check function
     
     return (
         <>
             <div className='casinoContainer'>
-               {roundData.round === 1 && !roundData.allGuessesMade && <h1 style={{color: 'yellow'}}>{generateWelcomeHeading(names)}</h1> }
-                {!roundData.allGuessesMade && 
-                <>
-                    <p>{generateCustomMessage(roundData.currentGuesserSpot, roundData.round, names)}</p>
-                    <input 
-                    autoComplete='off' 
-                    onChange={handleGuess} 
-                    value={roundData.playerGuesses[names[roundData.currentGuesserSpot]]} 
-                    name={names[roundData.currentGuesserSpot]} 
-                    className='casinoInput' 
-                    placeholder='Enter your card guess here' 
-                    />
-                    <button onClick={updateOrder} className='casinoButton'>Make Pick</button>
-                </>
+               {round === 1 && !allGuessesMade ? 
+               <h1 style={{color: 'yellow'}}>{generateWelcomeHeading(playerNames)}</h1> :
+                <h1 style={{color: 'yellow', fontSize: 60}}>
+                    {`Round ${round === 5 ? `${round} (Final Round - ${round * 2} Points!)` : `${round} (${round * 2} Points) `}`}
+                </h1> 
                 }
-                {roundData.allGuessesMade && 
-                <>
-                    <SelectedCards 
-                    playerNames={names} 
-                    playerScores={playerScores}
-                    setPlayerScores={setPlayerScores}
-                    playerGuesses={roundData.playerGuesses} 
-                    isCardSelected={roundData.isCardSelected} 
-                    selectedCardHistory={selectedCardHistory} 
-                    currentRound={roundData.round} 
-                    /> 
-                    { roundData.round !== 5 && roundData.isCardSelected && <button onClick={nextRound} className='casinoButton'>Next Round</button> }
-                    { roundData.round === 5 && selectedCardHistory.length === 5 && 
-                    <div>
-                       <p>{generateThankYouMessage(names)}</p>
-                       <p>Come again soon! And as always, MIFUUUUUU</p>
-                       <button onClick={() => window.location.reload()} className='casinoButton'>Exit Casino</button>
-                    </div>
-                    }
-                </>
-                }       
+                {!allGuessesMade ? 
+                    <Guess 
+                    roundData={roundData} 
+                    setRoundData={setRoundData} 
+                    playerNames={playerNames}  
+                    />
+                    :
+                    <>
+                        <p style={{color: 'white'}}>
+                            All guesses have been made! {round === 5 ? 'And the final card is...' : 'And the card is...'} 
+                            { isCardSelected && 
+                            <span style={{color: 'yellow', fontSize: 35}}>
+                                {selectedCardHistory[round-1].name}
+                            </span>} 
+                        </p> 
+
+                        { isCardSelected &&
+                            <RoundResults 
+                            playerNames={playerNames}
+                            playerScores={playerScores}
+                            roundData={roundData}
+                            selectedCardHistory={selectedCardHistory}
+                            />
+                        }
+
+                        { isCardSelected && round === 5 &&
+                            <FinalResults 
+                            playerNames={playerNames}
+                            playerScores={playerScores} 
+                            /> 
+                        }  
+
+                        <SelectedCards selectedCardHistory={selectedCardHistory} />
+                        
+                        { round !== 5 && isCardSelected && 
+                            <button 
+                            onClick={nextRound} 
+                            className='casinoButton'>
+                                Next Round
+                            </button> 
+                        }
+
+                        { round === 5 && selectedCardHistory.length === 5 && <ThankYou playerNames={playerNames} /> }
+                    </>  
+                }   
             </div>
         </>
     );
