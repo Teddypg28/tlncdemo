@@ -7,11 +7,13 @@ export default function getGameWinners(playerScores) {
     const playerScoreKeys = Object.keys(playerScores)   
     playerScoreKeys.forEach(key => {
         if (playerScores[key] > 0) {
-            if (winningScore === playerScores[key]) {
-            winners.push(key)
-            } else {
-                winners = [key]
-                winningScore = playerScores[key]
+            if (playerScores[key] >= winningScore) {
+                if (playerScores[key] === winningScore) {
+                    winners.push(key)
+                } else {
+                    winners = [key]
+                    winningScore = playerScores[key]
+                }
             }
         }
     })  
